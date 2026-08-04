@@ -1,0 +1,1359 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+  <meta charset="UTF-8" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>MyPlate Student Interactive</title>
+
+  <style>
+
+    :root {
+
+      --veg: #4CAF50;
+
+      --fruit: #E53935;
+
+      --grain: #FB8C00;
+
+      --protein: #8E24AA;
+
+      --dairy: #1E88E5;
+
+      --bg: #f7f9fc;
+
+      --card: #ffffff;
+
+      --text: #1f2937;
+
+      --muted: #6b7280;
+
+      --line: #e5e7eb;
+
+      --ok: #059669;
+
+      --warn: #d97706;
+
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+
+      margin: 0;
+
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+
+      background: linear-gradient(180deg, #eef6ff 0%, var(--bg) 220px);
+
+      color: var(--text);
+
+      line-height: 1.45;
+
+    }
+
+    .wrap { max-width: 1100px; margin: 0 auto; padding: 20px; }
+
+    h1 { margin: 0 0 6px; font-size: 1.75rem; }
+
+    .sub { color: var(--muted); margin-bottom: 18px; }
+
+    .grid {
+
+      display: grid;
+
+      grid-template-columns: 1.1fr 0.9fr;
+
+      gap: 18px;
+
+    }
+
+    @media (max-width: 900px) {
+
+      .grid { grid-template-columns: 1fr; }
+
+    }
+
+    .card {
+
+      background: var(--card);
+
+      border: 1px solid var(--line);
+
+      border-radius: 16px;
+
+      padding: 16px;
+
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+
+    }
+
+    .card h2 {
+
+      margin: 0 0 12px;
+
+      font-size: 1.1rem;
+
+    }
+
+    label { display: block; font-size: 0.9rem; margin: 8px 0 4px; color: var(--muted); }
+
+    input, select, button {
+
+      font: inherit;
+
+    }
+
+    input, select {
+
+      width: 100%;
+
+      padding: 10px 12px;
+
+      border: 1px solid var(--line);
+
+      border-radius: 10px;
+
+      background: #fff;
+
+    }
+
+    .row {
+
+      display: grid;
+
+      grid-template-columns: 1fr 1fr;
+
+      gap: 10px;
+
+    }
+
+    .btn {
+
+      border: 0;
+
+      border-radius: 12px;
+
+      padding: 11px 14px;
+
+      cursor: pointer;
+
+      background: #111827;
+
+      color: white;
+
+      font-weight: 600;
+
+    }
+
+    .btn.secondary {
+
+      background: #e5e7eb;
+
+      color: #111827;
+
+    }
+
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+
+    .plate-area {
+
+      display: grid;
+
+      place-items: center;
+
+      gap: 14px;
+
+    }
+
+    .plate {
+
+      width: min(360px, 90vw);
+
+      height: min(360px, 90vw);
+
+      border-radius: 50%;
+
+      border: 10px solid #f3f4f6;
+
+      position: relative;
+
+      overflow: hidden;
+
+      background: #fff;
+
+      box-shadow: inset 0 0 0 2px #e5e7eb;
+
+    }
+
+    .seg {
+
+      position: absolute;
+
+      inset: 0;
+
+      display: flex;
+
+      align-items: center;
+
+      justify-content: center;
+
+      color: white;
+
+      font-weight: 700;
+
+      text-shadow: 0 1px 2px rgba(0,0,0,.25);
+
+      font-size: 0.95rem;
+
+      text-align: center;
+
+      padding: 8px;
+
+    }
+
+    /* Approximate MyPlate layout with CSS clip paths */
+
+    .veg {
+
+      background: var(--veg);
+
+      clip-path: polygon(0 0, 50% 0, 50% 55%, 0 55%);
+
+    }
+
+    .fruit {
+
+      background: var(--fruit);
+
+      clip-path: polygon(50% 0, 100% 0, 100% 40%, 50% 40%);
+
+    }
+
+    .grain {
+
+      background: var(--grain);
+
+      clip-path: polygon(50% 40%, 100% 40%, 100% 100%, 50% 100%);
+
+    }
+
+    .protein {
+
+      background: var(--protein);
+
+      clip-path: polygon(0 55%, 50% 55%, 50% 100%, 0 100%);
+
+    }
+
+    .dairy {
+
+      position: absolute;
+
+      right: -18px;
+
+      top: 18px;
+
+      width: 84px;
+
+      height: 110px;
+
+      border-radius: 42px;
+
+      background: var(--dairy);
+
+      color: white;
+
+      display: grid;
+
+      place-items: center;
+
+      font-weight: 700;
+
+      box-shadow: 0 6px 16px rgba(30,136,229,.25);
+
+    }
+
+    .legend {
+
+      display: flex;
+
+      flex-wrap: wrap;
+
+      gap: 8px;
+
+      justify-content: center;
+
+    }
+
+    .chip {
+
+      display: inline-flex;
+
+      align-items: center;
+
+      gap: 6px;
+
+      padding: 6px 10px;
+
+      border-radius: 999px;
+
+      background: #f3f4f6;
+
+      font-size: 0.85rem;
+
+    }
+
+    .dot {
+
+      width: 10px; height: 10px; border-radius: 50%;
+
+    }
+
+    .foods {
+
+      display: grid;
+
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+
+      gap: 8px;
+
+      max-height: 320px;
+
+      overflow: auto;
+
+      padding-right: 4px;
+
+    }
+
+    .food {
+
+      border: 1px solid var(--line);
+
+      border-radius: 12px;
+
+      padding: 10px;
+
+      background: #fff;
+
+      cursor: pointer;
+
+      text-align: left;
+
+      transition: transform .08s ease, border-color .08s ease;
+
+    }
+
+    .food:hover { transform: translateY(-1px); border-color: #cbd5e1; }
+
+    .food strong { display: block; }
+
+    .food small { color: var(--muted); }
+
+    .meter {
+
+      margin-top: 10px;
+
+    }
+
+    .meter-head {
+
+      display: flex;
+
+      justify-content: space-between;
+
+      font-size: 0.9rem;
+
+      margin-bottom: 4px;
+
+    }
+
+    .bar {
+
+      height: 12px;
+
+      background: #eef2f7;
+
+      border-radius: 999px;
+
+      overflow: hidden;
+
+    }
+
+    .fill {
+
+      height: 100%;
+
+      width: 0%;
+
+      border-radius: 999px;
+
+      transition: width .25s ease;
+
+    }
+
+    .tips {
+
+      background: #f0fdf4;
+
+      border: 1px solid #bbf7d0;
+
+      color: #065f46;
+
+      border-radius: 12px;
+
+      padding: 12px;
+
+      margin-top: 12px;
+
+      min-height: 72px;
+
+    }
+
+    .daylog {
+
+      display: grid;
+
+      gap: 8px;
+
+    }
+
+    .log-item {
+
+      display: flex;
+
+      justify-content: space-between;
+
+      gap: 8px;
+
+      padding: 8px 10px;
+
+      border: 1px solid var(--line);
+
+      border-radius: 10px;
+
+      background: #fafafa;
+
+      font-size: 0.92rem;
+
+    }
+
+    .remove {
+
+      border: 0;
+
+      background: transparent;
+
+      color: #b91c1c;
+
+      cursor: pointer;
+
+      font-weight: 700;
+
+    }
+
+    .status {
+
+      font-size: 0.92rem;
+
+      color: var(--muted);
+
+      margin-top: 8px;
+
+    }
+
+    .quiz {
+
+      display: grid;
+
+      gap: 10px;
+
+    }
+
+    .choice {
+
+      text-align: left;
+
+      border: 1px solid var(--line);
+
+      background: white;
+
+      border-radius: 10px;
+
+      padding: 10px 12px;
+
+      cursor: pointer;
+
+    }
+
+    .choice.correct { border-color: var(--ok); background: #ecfdf5; }
+
+    .choice.wrong { border-color: #dc2626; background: #fef2f2; }
+
+    .score {
+
+      font-weight: 700;
+
+      color: #111827;
+
+    }
+
+    .hidden { display: none; }
+
+  </style>
+
+</head>
+
+<body>
+
+  <div class="wrap">
+
+    <h1>MyPlate Student Interactive</h1>
+
+    <p class="sub">Build a balanced day of eating, watch your plate fill, and check your understanding with a quick quiz.</p>
+
+ 
+
+    <div class="grid">
+
+      <!-- LEFT -->
+
+      <div>
+
+        <div class="card" style="margin-bottom:18px;">
+
+          <h2>1) Your profile</h2>
+
+          <div class="row">
+
+            <div>
+
+              <label for="age">Age</label>
+
+              <input id="age" type="number" min="5" max="18" value="12" />
+
+            </div>
+
+            <div>
+
+              <label for="activity">Activity level</label>
+
+              <select id="activity">
+
+                <option value="low">Low</option>
+
+                <option value="mod" selected>Moderate</option>
+
+                <option value="high">High</option>
+
+              </select>
+
+            </div>
+
+          </div>
+
+          <div class="row">
+
+            <div>
+
+              <label for="sex">Sex</label>
+
+              <select id="sex">
+
+                <option value="female">Female</option>
+
+                <option value="male">Male</option>
+
+              </select>
+
+            </div>
+
+            <div>
+
+              <label for="goal">Learning goal</label>
+
+              <select id="goal">
+
+                <option value="balance">Balanced plate</option>
+
+                <option value="energy">Steady energy</option>
+
+                <option value="sports">Sports day</option>
+
+              </select>
+
+            </div>
+
+          </div>
+
+          <div class="actions">
+
+            <button class="btn" id="setPlan">Create my MyPlate plan</button>
+
+            <button class="btn secondary" id="resetDay">Reset day</button>
+
+          </div>
+
+          <p class="status" id="planText">Set your profile to get personalized food-group targets.</p>
+
+        </div>
+
+ 
+
+        <div class="card" style="margin-bottom:18px;">
+
+          <h2>2) Add foods to your day</h2>
+
+          <label for="filter">Filter by group</label>
+
+          <select id="filter">
+
+            <option value="all">All foods</option>
+
+            <option value="vegetables">Vegetables</option>
+
+            <option value="fruits">Fruits</option>
+
+            <option value="grains">Grains</option>
+
+            <option value="protein">Protein</option>
+
+            <option value="dairy">Dairy</option>
+
+          </select>
+
+          <div style="height:10px"></div>
+
+          <div class="foods" id="foodList"></div>
+
+        </div>
+
+ 
+
+        <div class="card">
+
+          <h2>3) Today’s log</h2>
+
+          <div class="daylog" id="dayLog"></div>
+
+          <p class="status" id="emptyLog">No foods yet. Click foods above to add them.</p>
+
+        </div>
+
+      </div>
+
+ 
+
+      <!-- RIGHT -->
+
+      <div>
+
+        <div class="card" style="margin-bottom:18px;">
+
+          <h2>Your MyPlate</h2>
+
+          <div class="plate-area">
+
+            <div style="position:relative;">
+
+              <div class="plate" aria-label="MyPlate diagram">
+
+                <div class="seg veg">Vegetables<br><span id="vegPct">0%</span></div>
+
+                <div class="seg fruit">Fruits<br><span id="fruitPct">0%</span></div>
+
+                <div class="seg grain">Grains<br><span id="grainPct">0%</span></div>
+
+                <div class="seg protein">Protein<br><span id="proteinPct">0%</span></div>
+
+              </div>
+
+              <div class="dairy">Dairy<br><span id="dairyPct">0%</span></div>
+
+            </div>
+
+            <div class="legend">
+
+              <span class="chip"><span class="dot" style="background:var(--veg)"></span>Half fruits + veggies</span>
+
+              <span class="chip"><span class="dot" style="background:var(--grain)"></span>Whole grains often</span>
+
+              <span class="chip"><span class="dot" style="background:var(--protein)"></span>Varied protein</span>
+
+              <span class="chip"><span class="dot" style="background:var(--dairy)"></span>Dairy or fortified alt.</span>
+
+            </div>
+
+          </div>
+
+ 
+
+          <div class="meter" data-group="vegetables">
+
+            <div class="meter-head"><span>Vegetables</span><span id="vegetablesMeta">0 / 0 cups</span></div>
+
+            <div class="bar"><div class="fill" id="vegetablesFill" style="background:var(--veg)"></div></div>
+
+          </div>
+
+          <div class="meter" data-group="fruits">
+
+            <div class="meter-head"><span>Fruits</span><span id="fruitsMeta">0 / 0 cups</span></div>
+
+            <div class="bar"><div class="fill" id="fruitsFill" style="background:var(--fruit)"></div></div>
+
+          </div>
+
+          <div class="meter" data-group="grains">
+
+            <div class="meter-head"><span>Grains</span><span id="grainsMeta">0 / 0 oz</span></div>
+
+            <div class="bar"><div class="fill" id="grainsFill" style="background:var(--grain)"></div></div>
+
+          </div>
+
+          <div class="meter" data-group="protein">
+
+            <div class="meter-head"><span>Protein</span><span id="proteinMeta">0 / 0 oz</span></div>
+
+            <div class="bar"><div class="fill" id="proteinFill" style="background:var(--protein)"></div></div>
+
+          </div>
+
+          <div class="meter" data-group="dairy">
+
+            <div class="meter-head"><span>Dairy</span><span id="dairyMeta">0 / 0 cups</span></div>
+
+            <div class="bar"><div class="fill" id="dairyFill" style="background:var(--dairy)"></div></div>
+
+          </div>
+
+ 
+
+          <div class="tips" id="coach">
+
+            Tip: Make half your plate fruits and vegetables. Choose whole fruits more often than juice.
+
+          </div>
+
+        </div>
+
+ 
+
+        <div class="card">
+
+          <h2>Quick check quiz</h2>
+
+          <div class="quiz">
+
+            <div id="question">Loading question…</div>
+
+            <div id="choices"></div>
+
+            <div class="score" id="score">Score: 0 / 0</div>
+
+            <div class="actions">
+
+              <button class="btn secondary" id="nextQ">Next question</button>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+ 
+
+  <script>
+
+    // Simplified educational targets inspired by MyPlate-style ranges for students.
+
+    // Not a medical calculator — for classroom learning only.
+
+    const foods = [
+
+      { name: "Broccoli", group: "vegetables", amount: 0.5, unit: "cups", note: "Dark green veg" },
+
+      { name: "Carrots", group: "vegetables", amount: 0.5, unit: "cups", note: "Red/orange veg" },
+
+      { name: "Spinach salad", group: "vegetables", amount: 1, unit: "cups", note: "Leafy greens" },
+
+      { name: "Mixed salad", group: "vegetables", amount: 1, unit: "cups", note: "Colorful mix" },
+
+      { name: "Apple", group: "fruits", amount: 1, unit: "cups", note: "Whole fruit" },
+
+      { name: "Banana", group: "fruits", amount: 0.5, unit: "cups", note: "Potassium boost" },
+
+      { name: "Berries", group: "fruits", amount: 0.5, unit: "cups", note: "High fiber" },
+
+      { name: "Orange", group: "fruits", amount: 0.75, unit: "cups", note: "Vitamin C" },
+
+      { name: "Oatmeal", group: "grains", amount: 1, unit: "oz", note: "Whole grain" },
+
+      { name: "Brown rice", group: "grains", amount: 1, unit: "oz", note: "Whole grain" },
+
+      { name: "Whole-wheat bread", group: "grains", amount: 1, unit: "oz", note: "Whole grain" },
+
+      { name: "Tortilla", group: "grains", amount: 1, unit: "oz", note: "Check whole grain" },
+
+      { name: "Chicken", group: "protein", amount: 2, unit: "oz", note: "Lean protein" },
+
+      { name: "Beans", group: "protein", amount: 1, unit: "oz", note: "Plant protein + fiber" },
+
+      { name: "Eggs", group: "protein", amount: 1, unit: "oz", note: "1 egg ≈ 1 oz-eq" },
+
+      { name: "Peanut butter", group: "protein", amount: 1, unit: "oz", note: "1 Tbsp ≈ 1 oz-eq" },
+
+      { name: "Low-fat milk", group: "dairy", amount: 1, unit: "cups", note: "Calcium + protein" },
+
+      { name: "Yogurt", group: "dairy", amount: 1, unit: "cups", note: "Great snack" },
+
+      { name: "Cheese stick", group: "dairy", amount: 0.5, unit: "cups", note: "Portion matters" },
+
+      { name: "Fortified soy milk", group: "dairy", amount: 1, unit: "cups", note: "Dairy alternative" }
+
+    ];
+
+ 
+
+    const quizBank = [
+
+      {
+
+        q: "About how much of your plate should be fruits and vegetables?",
+
+        choices: ["One quarter", "About half", "Almost all", "Only the side salad"],
+
+        answer: 1,
+
+        explain: "MyPlate encourages making half your plate fruits and vegetables."
+
+      },
+
+      {
+
+        q: "Which grain choice is usually the more nutritious default?",
+
+        choices: ["White rice only", "Whole grains most of the time", "Only pastries", "Skip grains"],
+
+        answer: 1,
+
+        explain: "At least half of grains should be whole grains like oats, brown rice, or whole-wheat bread."
+
+      },
+
+      {
+
+        q: "Which food counts in the Protein group?",
+
+        choices: ["Butter", "Beans", "Soda", "Candy"],
+
+        answer: 1,
+
+        explain: "Beans, eggs, fish, poultry, nuts, and seeds are protein foods."
+
+      },
+
+      {
+
+        q: "What is a smart drink swap inspired by MyPlate habits?",
+
+        choices: ["Sugary sports drinks all day", "Water or low-fat milk", "Energy drinks", "Fruit punch with every meal"],
+
+        answer: 1,
+
+        explain: "Water and low-fat or fat-free milk are better everyday choices than sugary drinks."
+
+      },
+
+      {
+
+        q: "Why does variety matter across food groups?",
+
+        choices: ["It only matters for taste", "Different foods provide different nutrients", "It doubles calories automatically", "It replaces sleep"],
+
+        answer: 1,
+
+        explain: "Each group supplies different nutrients. Variety helps cover vitamins, minerals, fiber, and protein."
+
+      }
+
+    ];
+
+ 
+
+    const state = {
+
+      targets: { vegetables: 2.5, fruits: 1.5, grains: 6, protein: 5, dairy: 3 },
+
+      eaten: { vegetables: 0, fruits: 0, grains: 0, protein: 0, dairy: 0 },
+
+      log: [],
+
+      quizIndex: 0,
+
+      score: 0,
+
+      answered: 0,
+
+      locked: false
+
+    };
+
+ 
+
+    const foodList = document.getElementById("foodList");
+
+    const dayLog = document.getElementById("dayLog");
+
+    const emptyLog = document.getElementById("emptyLog");
+
+    const coach = document.getElementById("coach");
+
+    const planText = document.getElementById("planText");
+
+ 
+
+    function calcTargets(age, sex, activity, goal) {
+
+      // Classroom-friendly approximate targets (cups / oz-equivalents)
+
+      let veg = 2.0, fruit = 1.5, grains = 5, protein = 4, dairy = 2.5;
+
+ 
+
+      if (age >= 9 && age <= 13) {
+
+        veg = sex === "male" ? 2.5 : 2.0;
+
+        fruit = 1.5;
+
+        grains = sex === "male" ? 6 : 5;
+
+        protein = sex === "male" ? 5 : 5;
+
+        dairy = 3;
+
+      } else if (age >= 14) {
+
+        veg = sex === "male" ? 3.5 : 2.5;
+
+        fruit = sex === "male" ? 2 : 1.5;
+
+        grains = sex === "male" ? 8 : 6;
+
+        protein = sex === "male" ? 6.5 : 5;
+
+        dairy = 3;
+
+      }
+
+ 
+
+      if (activity === "high") {
+
+        grains += 1;
+
+        protein += 0.5;
+
+        fruit += 0.5;
+
+      } else if (activity === "low") {
+
+        grains = Math.max(4, grains - 1);
+
+      }
+
+ 
+
+      if (goal === "sports") {
+
+        grains += 1;
+
+        protein += 0.5;
+
+        dairy += 0.5;
+
+      } else if (goal === "energy") {
+
+        grains += 0.5;
+
+        fruit += 0.5;
+
+      }
+
+ 
+
+      return {
+
+        vegetables: round1(veg),
+
+        fruits: round1(fruit),
+
+        grains: round1(grains),
+
+        protein: round1(protein),
+
+        dairy: round1(dairy)
+
+      };
+
+    }
+
+ 
+
+    function round1(n) { return Math.round(n * 10) / 10; }
+
+ 
+
+    function renderFoods() {
+
+      const filter = document.getElementById("filter").value;
+
+      foodList.innerHTML = "";
+
+      foods
+
+        .filter(f => filter === "all" || f.group === filter)
+
+        .forEach((f, idx) => {
+
+          const btn = document.createElement("button");
+
+          btn.className = "food";
+
+          btn.innerHTML = `<strong>${f.name}</strong><small>${title(f.group)} · ${f.amount} ${f.unit}<br>${f.note}</small>`;
+
+          btn.onclick = () => addFood(f);
+
+          foodList.appendChild(btn);
+
+        });
+
+    }
+
+ 
+
+    function title(g) {
+
+      return g.charAt(0).toUpperCase() + g.slice(1);
+
+    }
+
+ 
+
+    function addFood(food) {
+
+      state.log.push({ ...food, id: crypto.randomUUID() });
+
+      state.eaten[food.group] = round1(state.eaten[food.group] + food.amount);
+
+      updateUI();
+
+    }
+
+ 
+
+    function removeFood(id) {
+
+      const item = state.log.find(x => x.id === id);
+
+      if (!item) return;
+
+      state.eaten[item.group] = round1(Math.max(0, state.eaten[item.group] - item.amount));
+
+      state.log = state.log.filter(x => x.id !== id);
+
+      updateUI();
+
+    }
+
+ 
+
+    function pct(group) {
+
+      const t = state.targets[group] || 1;
+
+      return Math.min(100, Math.round((state.eaten[group] / t) * 100));
+
+    }
+
+ 
+
+    function updateMeters() {
+
+      ["vegetables", "fruits", "grains", "protein", "dairy"].forEach(g => {
+
+        const p = pct(g);
+
+        document.getElementById(g + "Fill").style.width = p + "%";
+
+        const unit = (g === "grains" || g === "protein") ? "oz" : "cups";
+
+        document.getElementById(g + "Meta").textContent = `${state.eaten[g]} / ${state.targets[g]} ${unit}`;
+
+      });
+
+ 
+
+      document.getElementById("vegPct").textContent = pct("vegetables") + "%";
+
+      document.getElementById("fruitPct").textContent = pct("fruits") + "%";
+
+      document.getElementById("grainPct").textContent = pct("grains") + "%";
+
+      document.getElementById("proteinPct").textContent = pct("protein") + "%";
+
+      document.getElementById("dairyPct").textContent = pct("dairy") + "%";
+
+    }
+
+ 
+
+    function updateLog() {
+
+      dayLog.innerHTML = "";
+
+      emptyLog.style.display = state.log.length ? "none" : "block";
+
+      state.log.forEach(item => {
+
+        const row = document.createElement("div");
+
+        row.className = "log-item";
+
+        row.innerHTML = `<span><strong>${item.name}</strong> · ${item.amount} ${item.unit} (${title(item.group)})</span>`;
+
+        const rm = document.createElement("button");
+
+        rm.className = "remove";
+
+        rm.textContent = "✕";
+
+        rm.onclick = () => removeFood(item.id);
+
+        row.appendChild(rm);
+
+        dayLog.appendChild(row);
+
+      });
+
+    }
+
+ 
+
+    function updateCoach() {
+
+      const e = state.eaten;
+
+      const t = state.targets;
+
+      const messages = [];
+
+ 
+
+      const fruitVeg = e.vegetables + e.fruits;
+
+      const fruitVegTarget = t.vegetables + t.fruits;
+
+      if (fruitVeg < fruitVegTarget * 0.5) {
+
+        messages.push("Add more colorful fruits and vegetables so they can take up about half your plate.");
+
+      }
+
+      if (e.grains < t.grains * 0.5) {
+
+        messages.push("Include a whole-grain choice like oatmeal, brown rice, or whole-wheat bread.");
+
+      }
+
+      if (e.protein < t.protein * 0.5) {
+
+        messages.push("Add a protein food — chicken, beans, eggs, yogurt, or nuts.");
+
+      }
+
+      if (e.dairy < t.dairy * 0.5) {
+
+        messages.push("Don’t forget dairy or a fortified alternative for calcium.");
+
+      }
+
+ 
+
+      const allGood = ["vegetables", "fruits", "grains", "protein", "dairy"]
+
+        .every(g => e[g] >= t[g] * 0.8);
+
+ 
+
+      if (allGood) {
+
+        coach.textContent = "Nice work! Your day looks balanced across the five MyPlate groups. Next challenge: keep portions steady and choose whole foods most of the time.";
+
+        return;
+
+      }
+
+ 
+
+      if (!messages.length) {
+
+        coach.textContent = "You’re on your way. Fill the lower groups next and aim for variety in colors and textures.";
+
+      } else {
+
+        coach.textContent = messages[0] + (messages[1] ? " " + messages[1] : "");
+
+      }
+
+    }
+
+ 
+
+    function updateUI() {
+
+      updateMeters();
+
+      updateLog();
+
+      updateCoach();
+
+    }
+
+ 
+
+    function setPlan() {
+
+      const age = Number(document.getElementById("age").value || 12);
+
+      const sex = document.getElementById("sex").value;
+
+      const activity = document.getElementById("activity").value;
+
+      const goal = document.getElementById("goal").value;
+
+      state.targets = calcTargets(age, sex, activity, goal);
+
+      planText.textContent = `Plan ready: Vegetables ${state.targets.vegetables} cups · Fruits ${state.targets.fruits} cups · Grains ${state.targets.grains} oz · Protein ${state.targets.protein} oz · Dairy ${state.targets.dairy} cups.`;
+
+      updateUI();
+
+    }
+
+ 
+
+    function resetDay() {
+
+      state.eaten = { vegetables: 0, fruits: 0, grains: 0, protein: 0, dairy: 0 };
+
+      state.log = [];
+
+      updateUI();
+
+    }
+
+ 
+
+    function renderQuiz() {
+
+      state.locked = false;
+
+      const item = quizBank[state.quizIndex % quizBank.length];
+
+      document.getElementById("question").textContent = item.q;
+
+      const box = document.getElementById("choices");
+
+      box.innerHTML = "";
+
+      item.choices.forEach((c, i) => {
+
+        const b = document.createElement("button");
+
+        b.className = "choice";
+
+        b.textContent = c;
+
+        b.onclick = () => {
+
+          if (state.locked) return;
+
+          state.locked = true;
+
+          state.answered += 1;
+
+          if (i === item.answer) {
+
+            b.classList.add("correct");
+
+            state.score += 1;
+
+            coach.textContent = "Quiz: " + item.explain;
+
+          } else {
+
+            b.classList.add("wrong");
+
+            box.children[item.answer].classList.add("correct");
+
+            coach.textContent = "Quiz: " + item.explain;
+
+          }
+
+          document.getElementById("score").textContent = `Score: ${state.score} / ${state.answered}`;
+
+        };
+
+        box.appendChild(b);
+
+      });
+
+    }
+
+ 
+
+    document.getElementById("setPlan").onclick = setPlan;
+
+    document.getElementById("resetDay").onclick = resetDay;
+
+    document.getElementById("filter").onchange = renderFoods;
+
+    document.getElementById("nextQ").onclick = () => {
+
+      state.quizIndex += 1;
+
+      renderQuiz();
+
+    };
+
+ 
+
+    // init
+
+    renderFoods();
+
+    setPlan();
+
+    renderQuiz();
+
+    updateUI();
+
+  </script>
+
+</body>
+
+</html>
